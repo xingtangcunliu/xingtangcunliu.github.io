@@ -13,7 +13,7 @@
 <meta property="og:site_name" content="xingtangcunliu个人博客">
 <meta property="og:description" content="动态代理第一次遇到是研究Retrofit源码时,经过代码分析发现retrofit巧妙的运用了动态代理把请求接口类的方法的注解信息以及参数按照既定的规则组合成完整的请求。
 动态代理的简单用例一个简单的接口类1234public interface Person &amp;#123;	   void doThis(String thing);   void doThat(String thing);&amp;#125">
-<meta property="og:updated_time" content="2016-11-01T15:56:19.635Z">
+<meta property="og:updated_time" content="2016-11-01T16:09:00.749Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java 动态代理">
 <meta name="twitter:description" content="动态代理第一次遇到是研究Retrofit源码时,经过代码分析发现retrofit巧妙的运用了动态代理把请求接口类的方法的注解信息以及参数按照既定的规则组合成完整的请求。
@@ -93,7 +93,7 @@
 <p>可以看出该类只有一个简单的方法，</p>
 <h3 id="InvocationHandler-类的编写"><a href="#InvocationHandler-类的编写" class="headerlink" title="InvocationHandler 类的编写"></a>InvocationHandler 类的编写</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">public class PersonInvocationHandler implements InvocationHandler &#123;</div><div class="line"></div><div class="line">	public Object invoke(Object proxy, Method method, Object[] args)&#123;</div><div class="line">	  <span class="keyword">if</span>(method.getName().equals(<span class="string">"doThis"</span>))&#123;</div><div class="line">         System.out.println(args[0]);</div><div class="line">         <span class="built_in">return</span> null;</div><div class="line">      &#125;</div><div class="line">      <span class="keyword">if</span>(method.getName().equals(<span class="string">"doThat"</span>))&#123;</div><div class="line">          System.out.println(args[0]);</div><div class="line">          <span class="built_in">return</span> null;</div><div class="line">       &#125;</div><div class="line">      <span class="built_in">return</span> null;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	</div><div class="line">	public static void main(String[] args) &#123;</div><div class="line">		Person person = (Person) Proxy.newProxyInstance(Person.class.getClassLoader(), new Class[]&#123;Person.class&#125;, new PersonInvocationHandler());</div><div class="line">		person.doThis(<span class="string">"I do this thing"</span>);</div><div class="line">		person.doThat(<span class="string">"I do that thing"</span>);</div><div class="line">	&#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>输出结果为<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">I <span class="keyword">do</span> this thing</div><div class="line">I <span class="keyword">do</span> that thing</div></pre></td></tr></table></figure></p>
-<p>可以看出通过动态代理生成的对象调用方法时最终都会调用InvocationHandler的invoke方法，invoke(Object proxy, Method method, Object[] args) 可以看出 proxy是代理对象本身，method是调用的方法属性，而args数组就是方法参数。</p>
+<p>通过输出接口分析，动态代理生成的对象调用方法时最终都会调用InvocationHandler的invoke方法，invoke(Object proxy, Method method, Object[] args) 可以看出 proxy是代理对象本身，method是调用的方法属性，而args数组就是方法参数。</p>
 <h2 id="动态代理的源码解析"><a href="#动态代理的源码解析" class="headerlink" title="动态代理的源码解析"></a>动态代理的源码解析</h2><p>我就从对象生成这句代码看起：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Person person = (Person) Proxy.newProxyInstance(Person.class.getClassLoader(), new Class[]&#123;Person.class&#125;, new PersonInvocationHandler());</div></pre></td></tr></table></figure>
 <p>从而找到实现代码<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">public static Object newProxyInstance(ClassLoader loader, Class&lt;?&gt;[] interfaces,</div><div class="line">                                          InvocationHandler invocationHandler)</div><div class="line">            throws IllegalArgumentException &#123;</div><div class="line"></div><div class="line">        <span class="keyword">if</span> (invocationHandler == null) &#123;</div><div class="line">            throw new NullPointerException(<span class="string">"invocationHandler == null"</span>);</div><div class="line">        &#125;</div><div class="line">        Exception cause;</div><div class="line">        try &#123;</div><div class="line">            <span class="built_in">return</span> getProxyClass(loader, interfaces)</div><div class="line">                    .getConstructor(InvocationHandler.class)</div><div class="line">                    .newInstance(invocationHandler);</div><div class="line">        &#125; catch (NoSuchMethodException e) &#123;</div><div class="line">            cause = e;</div><div class="line">        &#125; catch (IllegalAccessException e) &#123;</div><div class="line">            cause = e;</div><div class="line">        &#125; catch (InstantiationException e) &#123;</div><div class="line">            cause = e;</div><div class="line">        &#125; catch (InvocationTargetException e) &#123;</div><div class="line">            cause = e;</div><div class="line">        &#125;</div><div class="line">        AssertionError error = new AssertionError();</div><div class="line">        error.initCause(cause);</div><div class="line">        throw error;</div><div class="line">    &#125;</div></pre></td></tr></table></figure></p>
@@ -106,13 +106,27 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/10/31/hello-world/" data-id="ciuzogfmq0000u4s22ycgfp6d" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/10/31/hello-world/" data-id="civ0teve600012ss2x5tlicbe" class="article-share-link">Share</a>
       
       
     </footer>
   </div>
   
     
+<nav id="article-nav">
+  
+    <a href="/2016/11/02/Android-Bundle/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Android_Bundle
+        
+      </div>
+    </a>
+  
+  
+</nav>
+
   
 </article>
 
@@ -132,7 +146,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li></ul>
     </div>
   </div>
 
@@ -143,6 +157,10 @@
     <h3 class="widget-title">Recent Posts</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2016/11/02/Android-Bundle/">Android_Bundle</a>
+          </li>
         
           <li>
             <a href="/2016/10/31/hello-world/">Java 动态代理</a>
