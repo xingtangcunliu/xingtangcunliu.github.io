@@ -3,19 +3,19 @@
 <head>
   <meta charset="utf-8">
   
-  <title>Android_Bundle | xingtangcunliu个人博客</title>
+  <title>Bundle、Parcel解析 | xingtangcunliu个人博客</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="Bundle、Parcel解析Bundle 被我们经常用来进行启动Activity、service以及传递数据.Bundle支持的数据类型有原始类型以及其封装类，Parcelable 类型、Size类型、SizeF类型以及Serializable类型。
 Bundle基本使用Intent添加数据我们先看一下Bundle的添加传递信息的方法，添加Parcelable类型参数。12345public v">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Android_Bundle">
+<meta property="og:title" content="Bundle、Parcel解析">
 <meta property="og:url" content="http://yoursite.com/2016/11/02/Android-Bundle/index.html">
 <meta property="og:site_name" content="xingtangcunliu个人博客">
 <meta property="og:description" content="Bundle、Parcel解析Bundle 被我们经常用来进行启动Activity、service以及传递数据.Bundle支持的数据类型有原始类型以及其封装类，Parcelable 类型、Size类型、SizeF类型以及Serializable类型。
 Bundle基本使用Intent添加数据我们先看一下Bundle的添加传递信息的方法，添加Parcelable类型参数。12345public v">
-<meta property="og:updated_time" content="2016-11-02T11:07:46.279Z">
+<meta property="og:updated_time" content="2016-11-08T16:27:26.785Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Android_Bundle">
+<meta name="twitter:title" content="Bundle、Parcel解析">
 <meta name="twitter:description" content="Bundle、Parcel解析Bundle 被我们经常用来进行启动Activity、service以及传递数据.Bundle支持的数据类型有原始类型以及其封装类，Parcelable 类型、Size类型、SizeF类型以及Serializable类型。
 Bundle基本使用Intent添加数据我们先看一下Bundle的添加传递信息的方法，添加Parcelable类型参数。12345public v">
   
@@ -55,9 +55,9 @@ Bundle基本使用Intent添加数据我们先看一下Bundle的添加传递信�
       </nav>
       <nav id="sub-nav">
         
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="Flux RSS"></a>
         
-        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+        <a id="nav-search-btn" class="nav-icon" title="Rechercher"></a>
       </nav>
       <div id="search-form-wrap">
         <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
@@ -80,7 +80,7 @@ Bundle基本使用Intent添加数据我们先看一下Bundle的添加传递信�
         
   
     <h1 class="article-title" itemprop="name">
-      Android_Bundle
+      Bundle、Parcel解析
     </h1>
   
 
@@ -120,7 +120,7 @@ Bundle基本使用Intent添加数据我们先看一下Bundle的添加传递信�
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/11/02/Android-Bundle/" data-id="civ6m4k06000218s29lmsblu3" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/11/02/Android-Bundle/" data-id="civ9pn0qx00000ks2hpzvwl41" class="article-share-link">Partager</a>
       
       
     </footer>
@@ -130,7 +130,7 @@ Bundle基本使用Intent添加数据我们先看一下Bundle的添加传递信�
 <nav id="article-nav">
   
     <a href="/2016/11/06/内存泄露/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
+      <strong class="article-nav-caption">Récent</strong>
       <div class="article-nav-title">
         
           Android内存泄露
@@ -140,7 +140,7 @@ Bundle基本使用Intent添加数据我们先看一下Bundle的添加传递信�
   
   
     <a href="/2016/10/31/hello-world/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Older</strong>
+      <strong class="article-nav-caption">Ancien</strong>
       <div class="article-nav-title">Java 动态代理</div>
     </a>
   
@@ -173,16 +173,20 @@ Bundle基本使用Intent添加数据我们先看一下Bundle的添加传递信�
   
     
   <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
+    <h3 class="widget-title">Articles récents</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2016/11/09/View-Context-leak/">Android 输入法导致内存泄露以及WebView内存泄露解决方案</a>
+          </li>
         
           <li>
             <a href="/2016/11/06/内存泄露/">Android内存泄露</a>
           </li>
         
           <li>
-            <a href="/2016/11/02/Android-Bundle/">Android_Bundle</a>
+            <a href="/2016/11/02/Android-Bundle/">Bundle、Parcel解析</a>
           </li>
         
           <li>
@@ -202,7 +206,7 @@ Bundle基本使用Intent添加数据我们先看一下Bundle的添加传递信�
   <div class="outer">
     <div id="footer-info" class="inner">
       &copy; 2016 John Doe<br>
-      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+      Propulsé by <a href="http://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>
 </footer>
