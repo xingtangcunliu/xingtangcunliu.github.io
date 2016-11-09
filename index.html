@@ -48,9 +48,9 @@
       </nav>
       <nav id="sub-nav">
         
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="Flux RSS"></a>
         
-        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+        <a id="nav-search-btn" class="nav-icon" title="Rechercher"></a>
       </nav>
       <div id="search-form-wrap">
         <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
@@ -119,7 +119,7 @@
 <p>从以上代码分析可以看出Activity之所以会被持有都是因为PhoneWindow中生成LayoutInflater对象调用了Activity的getSystemService方法。该方法生成的对象持有Activity对象的引用。一开始我准备直接在BaseActivity中重写的getSystemService方法。最早为：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"> public Object getSystemService(String name) &#123;</div><div class="line">    if (LAYOUT_INFLATER_SERVICE.equals(name)) &#123;</div><div class="line">        if (mInflater == null) &#123;</div><div class="line">            //使用代理类</div><div class="line">            baseContextWrappernew = new BaseContextWrapper(this);</div><div class="line">            mInflater = LayoutInflater.from(BaseApplication.getInstance());</div><div class="line">        &#125;</div><div class="line">        return mInflater;</div><div class="line">    &#125;</div><div class="line">return super.getSystemService(name);</div></pre></td></tr></table></figure>
 <p>但这种方法有个严重的问题，就是Activity的很多主题样式不能使用了，所以有看了ContextThemeWrapper的方法，自己继承ContextWrapper类，重写其中的几个方法：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div></pre></td><td class="code"><pre><div class="line">//创建代理类</div><div class="line">public class BaseContextWrapper extends ContextWrapper &#123;</div><div class="line"></div><div class="line">    static Field field;</div><div class="line">    static &#123;</div><div class="line">        try &#123;</div><div class="line">            field = ContextWrapper.class.getDeclaredField(&quot;mBase&quot;);</div><div class="line">            field.setAccessible(true);</div><div class="line">        &#125; catch (NoSuchFieldException e) &#123;</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    Context mContext;</div><div class="line">    public BaseContextWrapper(Context context) &#123;</div><div class="line">        super(null);</div><div class="line">        mContext = context;</div><div class="line">        if(context instanceof ContextWrapper)&#123;</div><div class="line">            context = ((ContextWrapper)context).getBaseContext();</div><div class="line">        &#125;</div><div class="line">        attachBaseContext(context);</div><div class="line">    &#125;</div><div class="line">    //当获取主题信息时直接调用Activity的getTheme方法。</div><div class="line">    @Override</div><div class="line">    public Resources.Theme getTheme() &#123;</div><div class="line">        if(mContext != null)&#123;</div><div class="line">            return mContext.getTheme();</div><div class="line">        &#125;</div><div class="line">        return super.getTheme();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    @Override public Object getSystemService(String name) &#123;</div><div class="line">        if(mContext == null)&#123;</div><div class="line">            return super.getSystemService(name);</div><div class="line">        &#125;</div><div class="line">        return mContext.getSystemService(name);</div><div class="line">    &#125;</div><div class="line">    //释放Activity的持有。</div><div class="line">    public void recycle()&#123;</div><div class="line">        try &#123;</div><div class="line">            field.set(this,null);</div><div class="line">        &#125; catch (IllegalAccessException e) &#123;</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public Activity getActivityContext()&#123;</div><div class="line">        Activity context = (Activity) mContext;</div><div class="line">        return context;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>这样View就只会持有BaseContextWrapper对象，当Activity销毁时会执行recycle方法释放Activity已经ContextImpl。这样View已经不能直接持有Activity了，但还有一个问题就是View本身持有包含它的ViewGroup就是ViewParent，这里只需要去除持有关系即可。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">ViewGroup viewGroup = (ViewGroup) getWindow().getDecorView();</div><div class="line">//去除方法要在BaseContextWrapper的recycle方法之前执行。</div><div class="line">clearView(viewGroup);</div><div class="line">if(baseContextWrappernew != null)&#123;</div><div class="line">   baseContextWrappernew.recycle();</div><div class="line">&#125;</div><div class="line">private void clearView(View viewClear)&#123;</div><div class="line">    if(viewClear instanceof ViewGroup)&#123;</div><div class="line">        int length = ((ViewGroup)viewClear).getChildCount();</div><div class="line">        View view = null;</div><div class="line">        for(int i=0;i&lt; length;i++)&#123;</div><div class="line">            view = ((ViewGroup) viewClear).getChildAt(i);</div><div class="line">            clearView(view);</div><div class="line">        &#125;</div><div class="line">        ((ViewGroup) viewClear).removeAllViews();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>这样View就只会持有BaseContextWrapper对象，当Activity销毁时会执行recycle方法释放Activity已经ContextImpl。这样View已经不能直接持有Activity了，但还有一个问题就是View本身持有包含它的ViewGroup就是ViewParent，这里只需要去除持有关系即可。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">ViewGroup viewGroup = (ViewGroup) getWindow().getDecorView();</div><div class="line">//去除方法要在BaseContextWrapper的recycle方法之前执行。</div><div class="line">clearView(viewGroup);</div><div class="line">if(baseContextWrappernew != null)&#123;</div><div class="line">   baseContextWrappernew.recycle();</div><div class="line">&#125;</div><div class="line">private void clearView(View viewClear)&#123;</div><div class="line">    if(viewClear instanceof ViewGroup)&#123;</div><div class="line">        int length = ((ViewGroup)viewClear).getChildCount();</div><div class="line">        View view = null;</div><div class="line">        for(int i=0;i&lt; length;i++)&#123;</div><div class="line">            view = ((ViewGroup) viewClear).getChildAt(i);</div><div class="line">            clearView(view);</div><div class="line">        &#125;</div><div class="line">        try &#123;</div><div class="line">           ((ViewGroup) viewClear).removeAllViews();</div><div class="line">        &#125; catch(Exception e)&#123;</div><div class="line">        &#125;</div><div class="line">       </div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
 <p>这些只是清楚了VIew和Activity的基本持有关系，但各种事件监听之类的要自己注意去除。</p>
 <p>##3、LayoutInflater 的Activity or Application##<br>从我上面的分析其实已经可以看出了部分区别。</p>
 <p>1、就是用Activity那么View持有的Context就是Activity，如果用的是Application那么View持有的Context就是Application，而有些人比较喜欢直接用View的Context转为Activity，如果用Application那时就会出错。<br>2、Application继承自ContextWrapper，而Activity继承自ContextThemeWrapper，而ContextThemeWrapper有时对ContextWrapper的继承，对其中一部分方法进行了修改，这也就是不同所在。</p>
@@ -129,7 +129,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/11/09/View-Context-leak/" data-id="civafvvl700021gs2pnyr9m5n" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/11/09/View-Context-leak/" data-id="civaxfqn200000os2wlwhcqms" class="article-share-link">Partager</a>
       
       
     </footer>
@@ -176,7 +176,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/11/06/内存泄露/" data-id="civafvvld00031gs2tqj878s7" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/11/06/内存泄露/" data-id="civaxfqob00010os2qlcqqiew" class="article-share-link">Partager</a>
       
       
     </footer>
@@ -240,7 +240,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/11/02/Android-Bundle/" data-id="civafvvk700001gs2ug3c1jgp" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/11/02/Android-Bundle/" data-id="civaxfqog00020os2ulmit96x" class="article-share-link">Partager</a>
       
       
     </footer>
@@ -290,7 +290,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/10/31/hello-world/" data-id="civafvvl200011gs2nol4341l" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/10/31/hello-world/" data-id="civaxfqol00030os2320woz17" class="article-share-link">Partager</a>
       
       
     </footer>
@@ -325,7 +325,7 @@
   
     
   <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
+    <h3 class="widget-title">Articles récents</h3>
     <div class="widget">
       <ul>
         
@@ -358,7 +358,7 @@
   <div class="outer">
     <div id="footer-info" class="inner">
       &copy; 2016 John Doe<br>
-      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+      Propulsé by <a href="http://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>
 </footer>
