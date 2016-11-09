@@ -4,7 +4,6 @@
   <meta charset="utf-8">
   
   <title>Android 输入法导致内存泄露以及WebView内存泄露解决方案 | xingtangcunliu个人博客</title>
-  <meta name="google-site-verification" content="6bhfKhWY43y0EeDDuE6o8zXIvcTtpD0Z05s_CPQn7so" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="如果开发到一定程度肯定会去处理内存的问题，因为不处理该问题的话，轻一点会导致应用频繁GC，严重的情况下会产生内存溢出导致崩溃。而只要讲到内存溢出经常会遇到一句话，使用Activity的Context导致，而Context被引用，最后导致Activity泄露。
 1、查找泄露原因既然是查询View持有Activity的引用导致的内存泄露，那么就从Activity的setContentView看起。12">
@@ -56,9 +55,9 @@
       </nav>
       <nav id="sub-nav">
         
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="Flux RSS"></a>
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
         
-        <a id="nav-search-btn" class="nav-icon" title="Rechercher"></a>
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
       </nav>
       <div id="search-form-wrap">
         <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
@@ -135,7 +134,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/11/09/View-Context-leak/" data-id="civ9qkwin0000j4s261a5tg90" class="article-share-link">Partager</a>
+      <a data-url="http://yoursite.com/2016/11/09/View-Context-leak/" data-id="civafhvtj000238s2o7ttsp6b" class="article-share-link">Share</a>
       
       
     </footer>
@@ -146,7 +145,7 @@
   
   
     <a href="/2016/11/06/内存泄露/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Ancien</strong>
+      <strong class="article-nav-caption">Older</strong>
       <div class="article-nav-title">Android内存泄露</div>
     </a>
   
@@ -179,7 +178,7 @@
   
     
   <div class="widget-wrap">
-    <h3 class="widget-title">Articles récents</h3>
+    <h3 class="widget-title">Recent Posts</h3>
     <div class="widget">
       <ul>
         
@@ -212,7 +211,7 @@
   <div class="outer">
     <div id="footer-info" class="inner">
       &copy; 2016 John Doe<br>
-      Propulsé by <a href="http://hexo.io/" target="_blank">Hexo</a>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>
 </footer>
